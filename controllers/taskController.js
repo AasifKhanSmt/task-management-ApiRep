@@ -26,8 +26,7 @@ const getTasks = async (req, res, next) => {
         }
 
         const offset = (page - 1) * limit;
-
-        const result = await taskService.getTasksWithFilters(search, status, limit, offset);
+        const result = await taskService.getTasksWithFilters(search, status, limit, offset, req.userId);
         const totalPages = Math.ceil(result.total / limit);
 
         res.status(200).json({
@@ -45,7 +44,7 @@ const getTasks = async (req, res, next) => {
     }
 };
 
-const getTaskById = async (req, res) => {
+const getTaskById = async (req, res, next) => {
     try {
         const taskId = Number(req.params.id);
 
@@ -56,7 +55,14 @@ const getTaskById = async (req, res) => {
             });
         }
 
-        const task = await taskService.getTaskById(taskId);
+        const task = await taskService.getTaskById(taskId, req.userId);
+
+        if (!task) {
+            return res.status(404).json({
+                success: false,
+                message: "Task not found"
+            });
+        }
 
         res.status(200).json({
             success: true,
@@ -67,12 +73,12 @@ const getTaskById = async (req, res) => {
     }
 };
 
-const createNewTask = async (req, res) => {
+const createNewTask = async (req, res, next) => {
     try {
 
         const { title, description, status } = req.body;
-
-        const task = await taskService.createTask(title, description, status);
+        const userId = req.userId;
+        const task = await taskService.createTask(title, description, status, userId);
 
         res.status(201).json({
             message: "Task created successfully",
@@ -84,9 +90,10 @@ const createNewTask = async (req, res) => {
     }
 };
 
-const updateTask = async (req, res) => {
+const updateTask = async (req, res, next) => {
     try {
         const taskId = Number(req.params.id);
+        const userId = req.userId;
 
         if (Number.isNaN(taskId)) {
             return res.status(400).json({
@@ -97,7 +104,7 @@ const updateTask = async (req, res) => {
 
         const { title, description, status } = req.body;
 
-        const task = await taskService.updateTask(taskId, title, description, status);
+        const task = await taskService.updateTask(taskId, userId, title, description, status);
 
         console.log("UPDATED TASK !!", task);
 
@@ -112,7 +119,7 @@ const updateTask = async (req, res) => {
     }
 };
 
-const deleteTask = async (req, res) => {
+const deleteTask = async (req, res, next) => {
     try {
         const taskId = Number(req.params.id);
 
@@ -123,7 +130,7 @@ const deleteTask = async (req, res) => {
             });
         }
 
-        await taskService.deleteTask(taskId);
+        await taskService.deleteTask(taskId, req.userId);
 
         res.status(200).json({
             success: true,
@@ -132,7 +139,7 @@ const deleteTask = async (req, res) => {
     } catch (error) {
         next(error);
     }
-}
+};
 
 module.exports = {
     getTasks,

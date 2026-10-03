@@ -28,9 +28,9 @@ const findAll = async () => {
 //     return result.rows;
 // };
 
-const findAllWithFilters = async (searchTerm, status, limit, offset) => {
-    let whereQuery = "WHERE 1 = 1";
-    const values = [];
+const findAllWithFilters = async (searchTerm, status, limit, offset, userId) => {
+    let whereQuery = "WHERE user_id = $1";
+    const values = [userId];
 
     if (searchTerm) {
         values.push(`%${searchTerm}%`);
@@ -84,30 +84,34 @@ const findAllWithFilters = async (searchTerm, status, limit, offset) => {
     };
 };
 
-const getTaskById = async (taskId) => {
+const getTaskById = async (taskId, userId) => {
     const result = await pool.query(
-        `SELECT * FROM tasks WHERE id = $1`,
-        [taskId]
+        `SELECT *
+        FROM tasks
+        WHERE id = $1
+        AND user_id = $2`,
+        [taskId, userId]
     );
 
     return result.rows[0];
 };
 const create = async (task) => {
     const result = await pool.query(
-        `INSERT INTO tasks (title, description, status)
-         VALUES ($1, $2, $3)
+        `INSERT INTO tasks (title, description, status, user_id)
+         VALUES ($1, $2, $3, $4)
          RETURNING *`,
         [
             task.title,
             task.description,
-            task.status
+            task.status,
+            task.userId
         ]
     );
 
     return result.rows[0];
 };
 
-const update = async (taskId, taskData) => {
+const update = async (taskId, userId, taskData) => {
     const result = await pool.query(
         `UPDATE tasks
          SET title = $2,
@@ -128,10 +132,10 @@ const update = async (taskId, taskData) => {
     return result.rows[0];
 };
 
-const remove = async (taskId) => {
+const remove = async (taskId, userId) => {
     const result = await pool.query(
-        `DELETE FROM tasks WHERE id = $1`,
-        [taskId]
+        `DELETE FROM tasks WHERE id = $1 AND user_id = $2`,
+        [taskId, userId]
     );
 
     return result.rows[0];

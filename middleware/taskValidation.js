@@ -14,11 +14,13 @@ const validateTask = (req, res, next) => {
         "cancelled"
     ];
 
-    if (status && typeof status !== "string" || !allowedStatuses.includes(status.trim())) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid status"
-        });
+    if (status !== undefined) {
+        if (typeof status !== "string" || !allowedStatuses.includes(status.trim())) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid status"
+            });
+        }
     }
 
     next();

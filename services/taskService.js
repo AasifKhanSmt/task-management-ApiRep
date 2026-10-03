@@ -12,26 +12,27 @@ const getAllTasks = async () => {
 //     return await taskRepository.searchTask(searchText);
 // };
 
-const getTasksWithFilters = async (searchTerm, status, limit, offset) => {
-    return await taskRepository.findAllWithFilters(searchTerm, status, limit, offset);
+const getTasksWithFilters = async (searchTerm, status, limit, offset, userId) => {
+    return await taskRepository.findAllWithFilters(searchTerm, status, limit, offset, userId);
 };
 
-const getTaskById = async (taskId) => {
-    return await taskRepository.getTaskById(taskId);
+const getTaskById = async (taskId, userId) => {
+    return await taskRepository.getTaskById(taskId, userId);
 };
 
-const createTask = async (title, description, status) => {
+const createTask = async (title, description, status, userId) => {
     const newTask = {
         title: title.trim(),
         description: description?.trim() || null,
-        status: status || "pending"
+        status: status || "pending",
+        userId
     };
 
     return await taskRepository.create(newTask);
 };
 
-const updateTask = async (taskId, title, description, status) => {
-    const existingTask = await taskRepository.getTaskById(taskId);
+const updateTask = async (taskId, userId, title, description, status) => {
+    const existingTask = await taskRepository.getTaskById(taskId, userId);
 
     if (!existingTask) {
         throw new Error("Task not found");
@@ -48,21 +49,19 @@ const updateTask = async (taskId, title, description, status) => {
     return await taskRepository.update(taskId, taskData);
 };
 
-const deleteTask = async (taskId) => {
-    const existingTask = await taskRepository.getTaskById(taskId);
+const deleteTask = async (taskId, userId) => {
+    const existingTask = await taskRepository.getTaskById(taskId, userId);
 
     if (!existingTask) {
         throw new Error("Task not found");
     }
 
-    return await taskRepository.remove(taskId);
+    return await taskRepository.remove(taskId, userId);
 };
 
 module.exports = {
     getAllTasks,
     getTasksWithFilters,
-    // getTaskByStatus,
-    // searchTask,
     createTask,
     getTaskById,
     updateTask,
