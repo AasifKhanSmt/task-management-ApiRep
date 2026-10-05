@@ -46,6 +46,11 @@ const loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
+        console.log("BODY:", req.body);
+        console.log("PASSWORD:", password);
+        console.log("PASSWORD TYPE:", typeof password);
+        console.log("PASSWORD LENGTH:", password?.length);
+
         if (!email || typeof email !== "string" || !email.includes("@") || !email.includes(".")) {
             return res.status(400).json({
                 success: false,
@@ -53,7 +58,7 @@ const loginUser = async (req, res, next) => {
             });
         }
 
-        if (!password || password.trim().length <= 6) {
+        if (!password || password.trim().length < 6) {
             return res.status(400).json({
                 success: false,
                 message: "Please enter a valid password."
