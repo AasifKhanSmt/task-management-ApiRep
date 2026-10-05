@@ -22,6 +22,7 @@ const pool = new Pool(poolConfig);
 pool.query("SELECT NOW()", (error, result) => {
     if (error) {
         console.error("Database connection failed:", error.message);
+        console.error("Stack:", error.stack);
     } else {
         console.log("Database connected successfully ✅");
         console.log("Database time:", result.rows[0].now);

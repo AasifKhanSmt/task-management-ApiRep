@@ -2,6 +2,9 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const userRepository = require("../repositories/userRepository");
 
+const { sendEmail } = require("./emailService");
+const { getWelcomeEmail } = require("../emails/welcomeEmail");
+
 const registerUser = async (name, email, password) => {
     const existingUser = await userRepository.findByEmail(email);
 
@@ -18,6 +21,19 @@ const registerUser = async (name, email, password) => {
     console.log("In Service --> PASSWORD", hashedPassword);
 
     const user = await userRepository.create(name, email, hashedPassword);
+
+    const welcomeEmail = getWelcomeEmail(
+        user.name,
+        process.env.APP_NAME
+    );
+
+    await sendEmail(
+        user.email,
+        welcomeEmail.subject,
+        welcomeEmail.text,
+        welcomeEmail.html
+    );
+
 
     return user;
 

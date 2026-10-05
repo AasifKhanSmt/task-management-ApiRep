@@ -59,11 +59,17 @@ const deleteTask = async (taskId, userId) => {
     return await taskRepository.remove(taskId, userId);
 };
 
+const findPendingTasksWithUsers = async () => {
+    return await taskRepository.findPendingTasksWithUsers();
+};  
+
+
 module.exports = {
     getAllTasks,
     getTasksWithFilters,
     createTask,
     getTaskById,
     updateTask,
-    deleteTask
+    deleteTask,
+    findPendingTasksWithUsers
 };

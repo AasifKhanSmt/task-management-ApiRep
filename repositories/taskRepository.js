@@ -141,11 +141,32 @@ const remove = async (taskId, userId) => {
     return result.rows[0];
 };
 
+const findPendingTasksWithUsers = async () => {
+    const result = await pool.query(`
+        SELECT
+            tasks.id,
+            tasks.title,
+            tasks.description,
+            tasks.status,
+            tasks.user_id,
+            users.name,
+            users.email
+        FROM tasks
+        JOIN users
+            ON tasks.user_id = users.id
+        WHERE tasks.status = 'pending'
+        ORDER BY tasks.id ASC
+    `);
+
+    return result.rows;
+};
+
 module.exports = {
     findAll,
     findAllWithFilters,
     create,
     getTaskById,
     update,
-    remove
+    remove,
+    findPendingTasksWithUsers
 };
