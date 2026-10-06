@@ -27,14 +27,20 @@ const registerUser = async (name, email, password) => {
         process.env.APP_NAME
     );
 
-    await sendEmail(
-        user.email,
-        welcomeEmail.subject,
-        welcomeEmail.text,
-        welcomeEmail.html
-    );
-
-
+    try {
+        await sendEmail(
+            user.email,
+            welcomeEmail.subject,
+            welcomeEmail.text,
+            welcomeEmail.html
+        );
+        console.log("Welcome email sent successfully");
+    } catch (error) {
+        console.error(
+            "Welcome email failed:",
+            error.message
+        );
+    }
     return user;
 
 };
